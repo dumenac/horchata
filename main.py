@@ -30,7 +30,7 @@ app = FastAPI(
 
 app.include_router(generate.router)
 
-@app.get("/", include_in_schema=False)
+@app.get("/", include_in_schema=False, , tags=["Generation"])
 async def redirect():
     response = RedirectResponse(url=getenv("ROOT_REDIRECT_URL"))
     return response
