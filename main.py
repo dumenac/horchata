@@ -25,7 +25,7 @@ app = FastAPI(
     },
     license_info={
         "name": "MIT License",
-        "url": f"{getenv("BASE_URL")}/static/license.md",
+        "identifier": "MIT",
     }
 )
 
