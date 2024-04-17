@@ -24,7 +24,7 @@ app = FastAPI(
     },
     license_info={
         "name": "MIT License",
-        "identifier": f"{getenv("ROOT_REDIRECT_URL")}/license.md",
+        "identifier": "MIT",
     }
 )
 
