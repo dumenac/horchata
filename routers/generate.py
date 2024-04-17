@@ -59,7 +59,7 @@ class Prompt(BaseModel):
     }
 
 
-@router.post("/generate")
+@router.post("/generate", tags=["Generation"])
 async def generate(prompt: Prompt) -> dict:
     if prompt.model is None:
         return {"error": "Model definition is required."}
