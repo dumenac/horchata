@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from starlette.responses import RedirectResponse
+from fastapi.responses import RedirectResponse
 from routers import generate
 from os import getenv
 from dotenv import load_dotenv
