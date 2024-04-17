@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from routers import generate
-from fastapi.staticfiles import StaticFiles
 from os import getenv
 from dotenv import load_dotenv
 
@@ -25,12 +24,11 @@ app = FastAPI(
     },
     license_info={
         "name": "MIT License",
-        "identifier": "MIT",
+        "identifier": f"{getenv("ROOT_REDIRECT_URL")}/license.md",
     }
 )
 
 app.include_router(generate.router)
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 @app.get("/", include_in_schema=False)
