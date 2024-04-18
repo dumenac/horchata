@@ -9,7 +9,7 @@ load_dotenv()
 description = """
 The Horchata API helps you do awesome stuff. 🚀
 
-It enables you to ask to the Gemini Pro LLM (developed and trained by Google) and get a JSON response matching the schema you specify in the request body.
+It enables you to ask to the Gemini Pro by Google or GPT-3-Turbo by OpenAI and get a JSON response matching the schema you specify in the request body.
 """
 
 app = FastAPI(

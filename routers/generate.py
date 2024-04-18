@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from typing import Optional, Any, Dict
+from typing import Any, Dict, Union
 
 from dependencies.json_tools import (
     extract_json,
@@ -9,21 +9,23 @@ from dependencies.json_tools import (
     json_to_pydantic,
     json_schema_to_model,
 )
-from dependencies.gemini_generate import generate_text
+from dependencies.generate import gemini_generate, openai_generate
 
 router = APIRouter()
 
 
 class Prompt(BaseModel):
     topic: str
-    model: Dict[str, Any]
+    model: Union[str,None]
+    response_model: Dict[str, Any]
 
     model_config = {
         "json_schema_extra": {
             "examples": [
                 {
                     "topic": "Magnus Carlsen",
-                    "model": {
+                    "model" : "openai",
+                    "response_model": {
                         "title": "Player information",
                         "properties": {
                             "first_name": {
@@ -61,26 +63,41 @@ class Prompt(BaseModel):
 
 @router.post("/generate", tags=["Generation"])
 async def generate(prompt: Prompt) -> dict:
-    if prompt.model is None:
+    if prompt.response_model is None:
         return {"error": "Model definition is required."}
+    
+    if prompt.model is None or prompt.model == "gemini":
+        model = "gemini"
+    elif prompt.model == "openai":
+        model = "openai"
+    else:
+        return {"error": "You must specify a valid LLM model."}
 
     try:
-        pydantic_model_cls = json_schema_to_model(prompt.model)
+        pydantic_model_cls = json_schema_to_model(prompt.response_model)
     except ValueError as e:
         return {"error": "Invalid model definition."}
 
     json_model_schema = model_to_json(pydantic_model_cls())
     modified_prompt = f"Give me information about {prompt.topic}. Please provide a response in a structured JSON format that matches the following model: {json_model_schema}"
 
-    try:
-        gemini_response = generate_text(modified_prompt)
-    except Exception as e:
-        return {"error": f"Gemini error. {e.message}"}
+    if model == "gemini":
+        try:
+            response = gemini_generate(modified_prompt)
+        except Exception as e:
+            return {"error": f"Gemini error. {e.message}"}
+    
+    else:
+        try:
+            response = openai_generate(modified_prompt)
+        except Exception as e:
+            return {"error": f"OpenAI error. {e.message}"}
+    
 
-    json_responses = extract_json(gemini_response)
+    json_responses = extract_json(response)
 
     if not json_responses:
-        return {"error": "No valid JSON found in response."}
+            return {"error": "No valid JSON found in response."}
 
     validation_success, validation_errors = validate_json_with_model(
         pydantic_model_cls, json_responses
