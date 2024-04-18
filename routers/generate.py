@@ -24,7 +24,7 @@ class Prompt(BaseModel):
             "examples": [
                 {
                     "topic": "Magnus Carlsen",
-                    "model" : "openai",
+                    "model" : "gemini",
                     "response_model": {
                         "title": "Player information",
                         "properties": {
